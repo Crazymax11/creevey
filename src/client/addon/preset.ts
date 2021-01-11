@@ -4,6 +4,7 @@ export function config(entry: string[] = []): string[] {
   return [...entry, require.resolve('./decorator')];
 }
 
+console.log('123')
 export function managerEntries(entry: string[] = []): string[] {
   return [...entry, require.resolve('./register')];
 }

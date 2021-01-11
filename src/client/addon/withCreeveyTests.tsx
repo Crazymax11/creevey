@@ -47,6 +47,16 @@ export function withCreeveyTests(
 
     async componentDidMount(): Promise<void> {
       const { api } = this.props;
+      console.log('kek')
+      api.on(SET_STORIES, (data: any) => {
+        // TODO: Send PR to storybook to fix this
+      const stories = data.v ? denormalizeStoryParameters(data) : (data as StoriesRaw);
+
+      console.log('SET STORIES WORKED')
+      console.log(stories)
+      // @ts-ignore
+    window.__CREEVEY_STORIES__ = stories;
+      });
       try {
         this.creeveyApi = await initCreeveyClientApi();
         const status = await this.creeveyApi.status;
@@ -100,6 +110,7 @@ export function withCreeveyTests(
         }
       });
       api.on(STORY_RENDERED, this.onStoryRendered);
+      console.log('subscribed')
       api.on(SET_STORIES, this.addStatusesToSidebar);
     }
 
@@ -111,6 +122,11 @@ export function withCreeveyTests(
     addStatusesToSidebar = (data: SetStoriesPayload): void => {
       // TODO: Send PR to storybook to fix this
       const stories = data.v ? denormalizeStoryParameters(data) : (data as StoriesRaw);
+
+      console.log('SET STORIES WORKED')
+      console.log(stories)
+      // @ts-ignore
+    window.__CREEVEY_STORIES__ = stories;
       this.setState({ stories });
       Object.keys(stories).forEach((storyId) => {
         const storyStatus = this.getStoryStatus(storyId);
@@ -159,6 +175,7 @@ export function withCreeveyTests(
     };
     handleStop = (): void => this.creeveyApi?.stop();
     render(): JSX.Element | null {
+      console.log('render')
       const statuses = this.getStoryStatus(this.state.storyId);
       return this.props.active ? (
         <CreeveyContext.Provider
@@ -174,7 +191,7 @@ export function withCreeveyTests(
           {statuses.length ? (
             <Child key={this.state.storyId} statuses={statuses} {...this.props} />
           ) : (
-            <Placeholder>{`Can't connect to Creevey server by 'http://${window.location.hostname}:${__CREEVEY_SERVER_PORT__}'. Please, make sure that you start it.`}</Placeholder>
+            <Placeholder>{`Can't connect t2o Creevey server by 'http://${window.location.hostname}:${__CREEVEY_SERVER_PORT__}'. Please, make sure that you start it.`}</Placeholder>
           )}
         </CreeveyContext.Provider>
       ) : null;

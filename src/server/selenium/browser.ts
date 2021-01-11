@@ -167,6 +167,7 @@ async function takeCompositeScreenshot(
   windowRect: { width: number; height: number; x: number; y: number },
   elementRect: DOMRect,
 ): Promise<string> {
+  console.log('takeCompositeScreenshot')
   const screens = [];
   const isScreenshotWithoutScrollBar = !(await hasScrollBar(browser));
   const scrollBarWidth = await getScrollBarWidth(browser);
@@ -189,6 +190,10 @@ async function takeCompositeScreenshot(
   const yOffset = Math.round(
     isFitVertically ? normalizedElementRect.top : Math.max(0, rows * viewportHeight - elementRect.height),
   );
+  console.log('windowRect', windowRect.width, windowRect.height)
+  console.log('elementRect', elementRect.width, elementRect.height)
+    console.log('viewport', viewportWidth, viewportHeight)
+    console.log(rows, cols)
 
   for (let row = 0; row < rows; row += 1) {
     for (let col = 0; col < cols; col += 1) {
@@ -239,7 +244,13 @@ async function takeCompositeScreenshot(
 }
 
 async function takeScreenshot(browser: WebDriver, captureElement?: string | null): Promise<string> {
-  if (!captureElement) return browser.takeScreenshot();
+  console.log('takeScreenshot')
+  console.log(await browser.getCurrentUrl())
+  if (!captureElement) {
+    console.log('browser get screenshot');
+
+    return browser.takeScreenshot();
+  }
 
   const { elementRect, windowRect } = await browser.executeScript<{
     elementRect?: DOMRect;
@@ -262,7 +273,7 @@ async function takeScreenshot(browser: WebDriver, captureElement?: string | null
   const isFitIntoViewport =
     elementRect.width + elementRect.left <= windowRect.width &&
     elementRect.height + elementRect.top <= windowRect.height;
-
+  console.log('isFitIntoViewport', isFitIntoViewport)
   if (isFitIntoViewport) return browser.findElement(By.css(captureElement)).takeScreenshot();
 
   return takeCompositeScreenshot(browser, windowRect, elementRect);

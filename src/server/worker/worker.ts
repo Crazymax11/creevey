@@ -10,7 +10,7 @@ import { subscribeOn, emitTestMessage, emitWorkerMessage } from '../messages';
 import chaiImage from './chai-image';
 import { getBrowser, switchStory } from '../selenium';
 import { CreeveyReporter, TeamcityReporter } from './reporter';
-import { addTestsFromStories } from './helpers';
+import { addTestsFromStories, addTestsFromStories__STORYBOOK } from './helpers';
 
 const statAsync = promisify(fs.stat);
 const readdirAsync = promisify(fs.readdir);
@@ -134,11 +134,12 @@ export default async function worker(config: Config, options: Options & { browse
 
   chai.use(chaiImage(getExpected, config.diffOptions));
 
-  await addTestsFromStories(mocha.suite, {
+  await addTestsFromStories__STORYBOOK(config, mocha.suite, {
     browser: options.browser,
     watch: options.ui,
   });
 
+  // TODO: fix
   const browserConfig = config.browsers[options.browser] as BrowserConfig;
   const browser = await getBrowser(config, browserConfig);
 

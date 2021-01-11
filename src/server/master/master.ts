@@ -1,9 +1,10 @@
 import path from 'path';
 import { Config, TestData, isDefined, ServerTest } from '../../types';
-import { loadTestsFromStories } from '../stories';
+// import { loadTestsFromStories } from '../stories';
 import Runner from './runner';
-import { startWebpackCompiler } from './stories';
+// import { startWebpackCompiler } from './stories';
 import { shutdownWorkers } from '../utils';
+import { createStorybookInstanceStoriesProvider } from '../storiesProvider/storybookInstanceStoriesProvider';
 
 function mergeTests(
   testsWithReports: Partial<{ [id: string]: TestData }>,
@@ -23,7 +24,7 @@ function mergeTests(
 }
 
 export default async function master(config: Config, watch: boolean): Promise<Runner> {
-  await startWebpackCompiler();
+  // await startWebpackCompiler();
   const runner = new Runner(config);
   const reportDataPath = path.join(config.reportDir, 'data.js');
   let testsFromReport = {};
@@ -32,6 +33,12 @@ export default async function master(config: Config, watch: boolean): Promise<Ru
   } catch (error) {
     // Ignore error
   }
+
+  console.log(config);
+  const provider = createStorybookInstanceStoriesProvider({
+    config,
+  })
+  const {loadTestsFromStories} = provider;
 
   const tests = await loadTestsFromStories({ browsers: Object.keys(config.browsers), watch }, (testsDiff) =>
     runner.updateTests(testsDiff),

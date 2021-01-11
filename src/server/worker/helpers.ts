@@ -1,6 +1,7 @@
 import { Suite, Context, Test } from 'mocha';
-import { isDefined, ServerTest } from '../../types';
+import { Config, isDefined, ServerTest } from '../../types';
 import { loadTestsFromStories } from '../stories';
+import { createStorybookInstanceStoriesProvider } from '../storiesProvider/storybookInstanceStoriesProvider';
 
 function findOrCreateSuite(name: string, parent: Suite): Suite {
   const suite = parent.suites.find(({ title }) => title == name) || new Suite(name, parent.ctx);
@@ -49,6 +50,28 @@ export async function addTestsFromStories(
       if (newTest) mochaTestsById.set(id, addTest(rootSuite, newTest));
     }),
   );
+
+  Object.values(tests)
+    .filter(isDefined)
+    .forEach((test) => mochaTestsById.set(test.id, addTest(rootSuite, test)));
+}
+
+export async function addTestsFromStories__STORYBOOK(
+  config: Config,
+  rootSuite: Suite,
+  { browser, watch }: { browser: string; watch: boolean },
+): Promise<void> {
+  const mochaTestsById = new Map<string, Test>();
+  const provider = createStorybookInstanceStoriesProvider({config})
+  const tests = await provider.loadTestsFromStories({browsers: [browser], watch}, () => {})
+  // const tests = await loadTestsFromStories({ browsers: [browser], watch }, (testsDiff) =>
+  //   Object.entries(testsDiff).forEach(([id, newTest]) => {
+  //     const oldTest = mochaTestsById.get(id);
+  //     mochaTestsById.delete(id);
+  //     if (oldTest) removeTestOrSuite(oldTest);
+  //     if (newTest) mochaTestsById.set(id, addTest(rootSuite, newTest));
+  //   }),
+  // );
 
   Object.values(tests)
     .filter(isDefined)
